@@ -1,0 +1,11 @@
+parameters:
+	ignoreErrors:
+		-
+			message: "#^Cannot cast mixed to string\\.$#"
+			count: 2
+			path: src/EuroAuto/Connect/EuroAutoSubmitAnInquiry.php
+
+		-
+			message: "#^Cannot cast mixed to string\\.$#"
+			count: 3
+			path: src/Shared/RabbitMQ/Queue/Amqp.php

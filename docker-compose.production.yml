@@ -1,0 +1,47 @@
+version: '3.7'
+
+services:
+
+  nginx:
+    build:
+      context: /var/www/projects/spareparts-api.avangard-mb.ru/current/docker/nginx
+    ports:
+      - "8896:8083"
+    volumes:
+      - /var/www/projects/spareparts-api.avangard-mb.ru/current/docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+      - /var/www/projects/spareparts-api.avangard-mb.ru/current/docker/nginx/nginx.conf:/etc/nginx/nginx.conf
+      - /var/www/projects/spareparts-api.avangard-mb.ru/current/.:/var/www/html
+      - /var/www/projects/spareparts-api.avangard-mb.ru/shared/storage:/var/www/html/storage
+    user: user
+    networks:
+      - spareparts
+    links:
+      - php
+
+  php:
+    build:
+      context: /var/www/projects/spareparts-api.avangard-mb.ru/current/docker/php
+    image: 'laravelapp'
+    container_name: php_spareparts
+    volumes:
+      - /var/www/projects/spareparts-api.avangard-mb.ru/current/.:/var/www/html
+      - /var/www/projects/spareparts-api.avangard-mb.ru/shared/storage:/var/www/html/storage
+      - /var/www/projects/spareparts-api.avangard-mb.ru/current/docker/php/error_reporting.ini:/usr/local/etc/php/conf.d/error_reporting.ini
+    user: user
+    networks:
+      - spareparts
+
+  redis:
+    build: /var/www/projects/spareparts-api.avangard-mb.ru/current/docker/redis
+    container_name: redis
+    command: redis-server --appendonly yes
+    volumes:
+      - ./__docker/redis/data:/data
+    ports:
+      - "8002:6379"
+    networks:
+      - spareparts
+
+networks:
+  spareparts:
+    driver: bridge

@@ -1,0 +1,85 @@
+image: shaevmv/docker_php_1:8
+
+services:
+  - mysql:latest
+  - redis:latest
+  - rabbitmq:latest
+    alias:rabbitmq
+
+stages:
+  - build
+  - test
+  - deploy
+
+variables:
+  APP_NAME: "${CI_PROJECT_NAMESPACE}/${CI_PROJECT_NAME}"
+  MYSQL_DATABASE: database
+  MYSQL_ROOT_PASSWORD: secret
+  GIT_STRATEGY: clone
+
+.php_stan_analyse: &php_stan_analyse
+                     vendor/bin/phpstan analyse --memory-limit=2G
+
+.unit_php_test: &unit_php_test
+                  vendor/bin/phpunit
+
+.init_ssh: &init_ssh |
+  mkdir ~/.ssh
+  chmod 700 ~/.ssh
+  printf "Host gitlab-test.avangard-mb.ru\n\tHostname gitlab-test.avangard-mb.ru\n\tUser git\n\tIdentityFile ~/.ssh/kubepv\n\n" >> ~/.ssh/config
+  printf "Host 10.10.10.7\n\tUser avangard\n\tIdentityFile ~/.ssh/kubepv\n\n" >> ~/.ssh/config
+  chmod 644 ~/.ssh/config
+  echo "$SSH_PRIVATE_KEY" >> ~/.ssh/kubepv
+  chmod 600 ~/.ssh/kubepv
+  ssh-keyscan "$URL_HOST" >> ~/.ssh/known_hosts
+  ssh-keyscan "$URL_GIT" >> ~/.ssh/known_hosts
+  chmod 644 ~/.ssh/known_hosts
+
+
+.deploy: &deploy |
+  vendor/bin/deployer.phar deploy --vvv
+
+.php_version: &php_version |
+  php -v
+
+.composer_install: &composer_install |
+  composer install --prefer-dist --no-interaction --no-progress --no-scripts
+
+.deploy_docker: &deploy_docker |
+  vendor/bin/deployer.phar build --vvv
+
+build-php-8.0-fpm:
+  stage: build
+  only:
+    - master
+  script:
+    - *php_version
+    - *composer_install
+    - cp .env.example .env
+
+phpStan:
+  stage: test
+  only:
+    - master
+  script:
+    - *composer_install
+    - *php_stan_analyse
+
+unitTest:
+  stage: test
+  only:
+    - master
+  script:
+    - *composer_install
+    - *unit_php_test
+
+production_code:
+  stage: deploy
+  only:
+    - master
+  script:
+    - *php_version
+    - *init_ssh
+    - *composer_install
+    - *deploy
+    - *deploy_docker

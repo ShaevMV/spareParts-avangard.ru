@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="./vendor/phpunit/phpunit/phpunit.xsd"
+         bootstrap="vendor/autoload.php"
+         colors="true"
+>
+    <testsuites>
+        <testsuite name="Unit">
+            <directory suffix="Test.php">./tests/Unit</directory>
+            <directory suffix="Test.php">./src/Tests</directory>
+        </testsuite>
+        <testsuite name="Feature">
+            <directory suffix="Test.php">./tests/Feature</directory>
+        </testsuite>
+    </testsuites>
+    <coverage processUncoveredFiles="true">
+        <include>
+            <directory suffix=".php">./app</directory>
+        </include>
+    </coverage>
+    <php>
+        <server name="APP_ENV" value="testing"/>
+        <server name="BCRYPT_ROUNDS" value="4"/>
+        <server name="CACHE_DRIVER" value="array"/>
+        <!-- <server name="DB_CONNECTION" value="sqlite"/> -->
+        <!-- <server name="DB_DATABASE" value=":memory:"/> -->
+        <server name="MAIL_MAILER" value="array"/>
+        <server name="QUEUE_CONNECTION" value="sync"/>
+        <server name="SESSION_DRIVER" value="array"/>
+        <server name="TELESCOPE_ENABLED" value="false"/>
+        <server name="EURO_AUTO_LOGIN" value="AVTOAT"/>
+        <server name="EURO_AUTO_PASSWORD" value="wallam160"/>
+        <server name="RABBITMQ_HOST" value="rabbitmq"/>
+        <server name="RABBITMQ_PORT" value="5672"/>
+        <server name="RABBITMQ_USER" value="guest"/>
+        <server name="RABBITMQ_PASSWORD" value="guest"/>
+        <server name="RABBITMQ_QUEUE" value="AvangardQueue"/>
+        <server name="RABBITMQ_EXCHANGE_CART_NAME" value="cart_create_domain_events"/>
+        <server name="RABBITMQ_EXCHANGE_ORDER_NAME" value="order_create_domain_events"/>
+        <server name="RABBITMQ_EXCHANGE_ERROR_NAME" value="order_error_domain_events"/>
+        <server name="RABBITMQ_VHOST" value="/"/>
+        <server name="RABBITMQ_ROUTING_KEY" value="test"/>
+    </php>
+</phpunit>
